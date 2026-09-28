@@ -23,3 +23,5 @@ header h1{margin:0;font-size:20px}
 .card-edit input,.card-edit select,.card-edit textarea{width:100%;margin:6px 0;padding:8px;border:1px solid #ccc;border-radius:8px}
 .card-edit textarea{min-height:80px}
 .row{display:flex;gap:8px;justify-content:flex-end}
+.dropzone{border:2px dashed #aaa;border-radius:12px;padding:24px;margin:12px 20px;text-align:center;color:#888;background:#fafbfc;transition:all .2s}
+.dropzone.dragover{background:#e0f0ff;border-color:#2563eb;color:#2563eb}
