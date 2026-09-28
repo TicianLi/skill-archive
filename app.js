@@ -1,90 +1,77 @@
-/* ========== 链接导入功能 ========== */
-const linkModal = document.getElementById('linkModal');
-const linkUrl = document.getElementById('linkUrl');
-const fetchLinkBtn = document.getElementById('fetchLinkBtn');
-const linkStatus = document.getElementById('linkStatus');
-const manualPaste = document.getElementById('manualPaste');
-const manualImportBtn = document.getElementById('manualImportBtn');
-const closeLinkModal = document.getElementById('closeLinkModal');
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SKIIL 技能存档</title>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <h1>SKIIL 技能存档</h1>
+  <p class="sub">上传 skill 文本/JSON/链接 → 自动建卡分类（纯浏览器，数据存本机）</p>
+</header>
 
-// 打开链接导入弹窗
-document.getElementById('linkImportBtn').addEventListener('click', () => {
-  linkModal.classList.remove('hidden');
-  linkUrl.value = '';
-  linkStatus.textContent = '';
-  manualPaste.style.display = 'none';
-  manualImportBtn.style.display = 'none';
-});
+<section class="bar">
+  <input id="search" placeholder="搜索技能名/标签/分类" />
+  <select id="filterCat"><option value="">全部分类</option></select>
+  <select id="filterStatus">
+    <option value="">全部进度</option>
+    <option>已掌握</option><option>学习中</option><option>待复习</option>
+  </select>
+  <label class="filebtn">上传文件
+    <input id="files" type="file" accept=".txt,.md,.json" multiple hidden />
+  </label>
+  <button id="clipBtn">📋 剪贴板一键导入</button>
+  <button id="linkImportBtn">🔗 链接导入</button>
+  <button id="exportBtn">💾 导出JSON</button>
+  <label class="filebtn">📂 导入JSON
+    <input id="importFile" type="file" accept=".json" hidden />
+  </label>
+  <button id="clearBtn">🗑️ 清空全部</button>
+</section>
 
-// 关闭弹窗
-closeLinkModal.addEventListener('click', () => {
-  linkModal.classList.add('hidden');
-});
+<div id="drop" class="dropzone">把 .txt / .md / .json 文件拖到这里，或点“上传文件”</div>
 
-// 获取链接内容
-fetchLinkBtn.addEventListener('click', async () => {
-  const url = linkUrl.value.trim();
-  if (!url) {
-    linkStatus.textContent = '请输入有效的链接';
-    return;
-  }
-  linkStatus.textContent = '正在获取…';
-  fetchLinkBtn.disabled = true;
-  try {
-    const response = await fetch(url, { mode: 'cors' });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const html = await response.text();
-    // 提取纯文本（去除HTML标签）
-    const plainText = html.replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
-    if (plainText.length < 50) {
-      throw new Error('内容过短，可能不是有效页面');
-    }
-    // 将内容当作txt文件解析
-    const cards = parseFile(url, plainText);
-    if (cards.length === 0) {
-      linkStatus.textContent = '未能解析出技能，请手动粘贴';
-      showManualFallback();
-      return;
-    }
-    const all = loadAll();
-    cards.forEach(c => c.file = url);
-    all.push(...cards);
-    saveAll(all);
-    refreshFilters();
-    render();
-    linkModal.classList.add('hidden');
-    alert(`成功导入 ${cards.length} 个技能`);
-  } catch (err) {
-    linkStatus.textContent = '自动获取失败：' + err.message + '。请手动复制页面内容粘贴到下方文本框。';
-    showManualFallback();
-  } finally {
-    fetchLinkBtn.disabled = false;
-  }
-});
+<section id="stats" class="stats"></section>
+<main id="list" class="list"></main>
 
-function showManualFallback() {
-  manualPaste.style.display = 'block';
-  manualImportBtn.style.display = 'inline-block';
-}
+<!-- 编辑弹窗 -->
+<div id="modal" class="modal hidden">
+  <div class="card-edit">
+    <h3>编辑技能</h3>
+    <input id="e_name" placeholder="技能名" />
+    <input id="e_cat" placeholder="分类" />
+    <select id="e_status">
+      <option>已掌握</option><option>学习中</option><option>待复习</option>
+    </select>
+    <input id="e_tags" placeholder="标签逗号分隔" />
+    <textarea id="e_summary" placeholder="摘要"></textarea>
+    <textarea id="e_raw" placeholder="原文"></textarea>
+    <div class="row">
+      <button id="e_save">保存</button>
+      <button id="e_del">删除</button>
+      <button id="e_close">关闭</button>
+    </div>
+  </div>
+</div>
 
-// 手动导入
-manualImportBtn.addEventListener('click', () => {
-  const content = manualPaste.value.trim();
-  if (!content) {
-    linkStatus.textContent = '请先粘贴内容';
-    return;
-  }
-  const cards = parseFile('manual-paste.txt', content);
-  if (cards.length === 0) {
-    linkStatus.textContent = '未能解析出技能，请检查内容格式';
-    return;
-  }
-  const all = loadAll();
-  cards.forEach(c => c.file = '手动粘贴');
-  all.push(...cards);
-  saveAll(all);
-  refreshFilters();
-  render();
-  linkModal.classList.add('hidden');
-  alert(`成功导入 ${cards.length} 个技能`);
-});
+<!-- 链接导入弹窗 -->
+<div id="linkModal" class="modal hidden">
+  <div class="card-edit" style="max-width:500px;">
+    <h3>从链接导入技能</h3>
+    <p style="font-size:13px;color:#666;">输入网页链接，自动抓取内容解析为技能。如果链接无法直接访问，可手动粘贴内容。</p>
+    <input id="linkUrl" type="url" placeholder="https://example.com/skill-description" style="width:100%;margin-bottom:8px;" />
+    <button id="fetchLinkBtn">获取链接内容</button>
+    <div id="linkStatus" style="font-size:13px;margin:8px 0;color:#888;"></div>
+    <textarea id="manualPaste" placeholder="如果自动获取失败，请手动复制页面内容粘贴到这里……" style="width:100%;min-height:120px;display:none;"></textarea>
+    <button id="manualImportBtn" style="display:none;">手动导入</button>
+    <div class="row" style="margin-top:12px;">
+      <button id="closeLinkModal">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>
