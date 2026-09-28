@@ -9,7 +9,7 @@
 <body>
 <header>
   <h1>SKIIL 技能存档</h1>
-  <p class="sub">上传 skill 文本/JSON → 自动建卡分类（纯浏览器，数据存本机）</p>
+  <p class="sub">上传 skill 文本/JSON/链接 → 自动建卡分类（纯浏览器，数据存本机）</p>
 </header>
 
 <section class="bar">
@@ -22,6 +22,7 @@
   <label class="filebtn">上传文件
     <input id="files" type="file" accept=".txt,.md,.json" multiple hidden />
   </label>
+  <button id="linkImportBtn">链接导入</button>
   <button id="exportBtn">导出JSON</button>
   <label class="filebtn">导入JSON
     <input id="importFile" type="file" accept=".json" hidden />
@@ -48,6 +49,22 @@
       <button id="e_save">保存</button>
       <button id="e_del">删除</button>
       <button id="e_close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<!-- 链接导入弹窗 -->
+<div id="linkModal" class="modal hidden">
+  <div class="card-edit" style="max-width:500px;">
+    <h3>从链接导入技能</h3>
+    <p style="font-size:13px;color:#666;">输入网页链接，自动抓取内容解析为技能。如果链接无法直接访问，可手动粘贴内容。</p>
+    <input id="linkUrl" type="url" placeholder="https://example.com/skill-description" style="width:100%;margin-bottom:8px;" />
+    <button id="fetchLinkBtn">获取链接内容</button>
+    <div id="linkStatus" style="font-size:13px;margin:8px 0;color:#888;"></div>
+    <textarea id="manualPaste" placeholder="如果自动获取失败，请手动复制页面内容粘贴到这里……" style="width:100%;min-height:120px;display:none;"></textarea>
+    <button id="manualImportBtn" style="display:none;">手动导入</button>
+    <div class="row" style="margin-top:12px;">
+      <button id="closeLinkModal">关闭</button>
     </div>
   </div>
 </div>
