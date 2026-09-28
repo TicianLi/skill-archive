@@ -22,13 +22,16 @@
   <label class="filebtn">上传文件
     <input id="files" type="file" accept=".txt,.md,.json" multiple hidden />
   </label>
-  <button id="linkImportBtn">链接导入</button>
-  <button id="exportBtn">导出JSON</button>
-  <label class="filebtn">导入JSON
+  <button id="clipBtn">📋 剪贴板一键导入</button>
+  <button id="linkImportBtn">🔗 链接导入</button>
+  <button id="exportBtn">💾 导出JSON</button>
+  <label class="filebtn">📂 导入JSON
     <input id="importFile" type="file" accept=".json" hidden />
   </label>
-  <button id="clearBtn">清空全部</button>
+  <button id="clearBtn">🗑️ 清空全部</button>
 </section>
+
+<div id="drop" class="dropzone">把 .txt / .md / .json 文件拖到这里，或点“上传文件”</div>
 
 <section id="stats" class="stats"></section>
 <main id="list" class="list"></main>
