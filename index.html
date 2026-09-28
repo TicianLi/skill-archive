@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>SKIIL 技能存档</title>
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+<header>
+  <h1>SKIIL 技能存档</h1>
+  <p class="sub">上传 skill 文本/JSON → 自动建卡分类（纯浏览器，数据存本机）</p>
+</header>
+
+<section class="bar">
+  <input id="search" placeholder="搜索技能名/标签/分类" />
+  <select id="filterCat"><option value="">全部分类</option></select>
+  <select id="filterStatus">
+    <option value="">全部进度</option>
+    <option>已掌握</option><option>学习中</option><option>待复习</option>
+  </select>
+  <label class="filebtn">上传文件
+    <input id="files" type="file" accept=".txt,.md,.json" multiple hidden />
+  </label>
+  <button id="exportBtn">导出JSON</button>
+  <label class="filebtn">导入JSON
+    <input id="importFile" type="file" accept=".json" hidden />
+  </label>
+  <button id="clearBtn">清空全部</button>
+</section>
+
+<section id="stats" class="stats"></section>
+<main id="list" class="list"></main>
+
+<!-- 编辑弹窗 -->
+<div id="modal" class="modal hidden">
+  <div class="card-edit">
+    <h3>编辑技能</h3>
+    <input id="e_name" placeholder="技能名" />
+    <input id="e_cat" placeholder="分类" />
+    <select id="e_status">
+      <option>已掌握</option><option>学习中</option><option>待复习</option>
+    </select>
+    <input id="e_tags" placeholder="标签逗号分隔" />
+    <textarea id="e_summary" placeholder="摘要"></textarea>
+    <textarea id="e_raw" placeholder="原文"></textarea>
+    <div class="row">
+      <button id="e_save">保存</button>
+      <button id="e_del">删除</button>
+      <button id="e_close">关闭</button>
+    </div>
+  </div>
+</div>
+
+<script src="./app.js"></script>
+</body>
+</html>
